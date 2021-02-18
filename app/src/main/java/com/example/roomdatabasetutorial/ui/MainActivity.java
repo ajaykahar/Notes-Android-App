@@ -1,16 +1,19 @@
 package com.example.roomdatabasetutorial.ui;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.example.roomdatabasetutorial.R;
 import com.example.roomdatabasetutorial.adapters.NotesListAdapter;
@@ -21,12 +24,13 @@ import com.example.roomdatabasetutorial.model.Note;
 import java.util.List;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity implements NotesListAdapter.ItemClickListener{
+public class MainActivity extends AppCompatActivity implements NotesListAdapter.ItemClickListener {
     private static final String TAG = "MainActivity";
+
+    public static final int EDIT_ACTIVITY_REQUEST_CODE = 1;
 
     EditText editTextNote;
     Button buttonAddNote;
-    Button buttonDelete;
     RecyclerView notesRecyclerView;
 
     NotesDatabase notesDatabase;
@@ -41,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements NotesListAdapter.
         setContentView(R.layout.activity_main);
         editTextNote = findViewById(R.id.editTextNote);
         buttonAddNote = findViewById(R.id.buttonAddNote);
-        buttonDelete = findViewById(R.id.buttonDelete);
 
         notesRecyclerView = findViewById(R.id.notes_recyclerView);
         notesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -63,14 +66,14 @@ public class MainActivity extends AppCompatActivity implements NotesListAdapter.
         buttonAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Note note = new Note(UUID.randomUUID().toString(),editTextNote.getText().toString());
+                Note note = new Note(UUID.randomUUID().toString(), editTextNote.getText().toString());
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         notesDao.inset(note);
                     }
                 }).start();
-
+                editTextNote.setText("");
             }
         });
 
@@ -84,5 +87,27 @@ public class MainActivity extends AppCompatActivity implements NotesListAdapter.
                 notesDao.delete(note);
             }
         }).start();
+    }
+
+    @Override
+    public void onNoteEditClickListener(Note note) {
+        Intent editActivityIntent = new Intent(MainActivity.this, EditNoteActivity.class);
+        editActivityIntent.putExtra("note", note);
+        startActivityForResult(editActivityIntent, EDIT_ACTIVITY_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
+            Note note = (Note) data.getSerializableExtra("note");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    notesDao.update(note);
+                }
+            }).start();
+
+        }
     }
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,7 +24,8 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.Note
 
     ItemClickListener mItemClickListener;
     public  interface ItemClickListener{
-        public void onNoteDeleteClickListener(Note note);
+        void onNoteDeleteClickListener(Note note);
+        void onNoteEditClickListener(Note note);
     }
 
     public NotesListAdapter(ItemClickListener mListener) {
@@ -51,6 +53,14 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.Note
                     }
                 }
             });
+            holder.buttonEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mItemClickListener!=null){
+                        mItemClickListener.onNoteEditClickListener(note);
+                    }
+                }
+            });
         }
     }
 
@@ -70,11 +80,13 @@ public class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.Note
 
     public class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView textViewNote;
-        Button buttonDelete;
+        ImageButton buttonDelete;
+        ImageButton buttonEdit;
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewNote = itemView.findViewById(R.id.notes_list_item_note);
             buttonDelete = itemView.findViewById(R.id.buttonDelete);
+            buttonEdit = itemView.findViewById(R.id.buttonEdit);
         }
     }
 }
