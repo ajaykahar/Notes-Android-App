@@ -2,6 +2,7 @@ package com.example.roomdatabasetutorial.databases;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -17,4 +18,6 @@ public interface NotesDao {
     @Query("SELECT * FROM Notes")
     LiveData<List<Note>> getAllNotes();
 
+    @Delete
+    void delete(Note note);
 }

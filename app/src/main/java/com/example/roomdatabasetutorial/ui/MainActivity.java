@@ -21,11 +21,12 @@ import com.example.roomdatabasetutorial.model.Note;
 import java.util.List;
 import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NotesListAdapter.ItemClickListener{
     private static final String TAG = "MainActivity";
 
     EditText editTextNote;
     Button buttonAddNote;
+    Button buttonDelete;
     RecyclerView notesRecyclerView;
 
     NotesDatabase notesDatabase;
@@ -40,10 +41,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         editTextNote = findViewById(R.id.editTextNote);
         buttonAddNote = findViewById(R.id.buttonAddNote);
+        buttonDelete = findViewById(R.id.buttonDelete);
 
         notesRecyclerView = findViewById(R.id.notes_recyclerView);
         notesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        notesListAdapter = new NotesListAdapter();
+        notesListAdapter = new NotesListAdapter((NotesListAdapter.ItemClickListener) this);
         notesRecyclerView.setAdapter(notesListAdapter);
 
         notesDatabase = NotesDatabase.getDatabase(this);
@@ -71,5 +73,16 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    @Override
+    public void onNoteDeleteClickListener(Note note) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                notesDao.delete(note);
+            }
+        }).start();
     }
 }
